@@ -1,0 +1,5 @@
+{
+  "generator-threejs": {
+    "coffeescript": false
+  }
+}
