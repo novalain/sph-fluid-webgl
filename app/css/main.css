@@ -37,6 +37,20 @@ body {
 .outerContainer{
 
     position: absolute;
+    
     left: 50%;
+    
+    top:-25px;
+    text-align:center;
+    font-size:1.5vh;
+
+    
+    
+}
+
+
+
+#work{
+    color:red;
 
 }
