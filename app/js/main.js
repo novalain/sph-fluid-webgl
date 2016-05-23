@@ -40,7 +40,7 @@ function initThreeJS() {
 
 function initParticles(){
 
-    var geometry = new THREE.SphereGeometry( 5, 32, 32 );
+    var geometry = new THREE.CircleGeometry( 5, 32 );
     var material = new THREE.MeshBasicMaterial( {color: 0x3fd0ff} );
     var sphere = new THREE.Mesh( geometry, material );
 
