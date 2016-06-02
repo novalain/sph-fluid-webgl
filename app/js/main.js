@@ -1,12 +1,6 @@
 (function() {
 
-// UI
-const START_OFFSET_X = 100;
-const START_OFFSET_Y = 256;
-const OFFSET_Z = 700;
-const SQUARE_SIZE = 512;
-const PARTICLE_RADIUS = 8;
-const LINEWIDTH = 10;
+
 
 // Physical attrs
 const NUM_PARTICLES = 400;
@@ -15,6 +9,14 @@ const PARTICLE_MASS = 500*.13;
 const h = 16;
 const STIFFNESS = 400*5;
 const GRAVITY_CONST = 90000*9.82;
+
+// UI
+const START_OFFSET_X = 100;
+const START_OFFSET_Y = 256;
+const OFFSET_Z = 700;
+const SQUARE_SIZE = 512;
+const LINEWIDTH = 10;
+const PARTICLE_RADIUS = h/2;
 
 var scene, camera, renderer;
 var particles = [];
@@ -47,8 +49,8 @@ function initThreeJS() {
 
 function initParticles(){
 
-    var geometry = new THREE.CircleGeometry( 5, 32 );
-    var material = new THREE.MeshBasicMaterial( {color: 0x3fd0ff} );
+    var geometry = new THREE.CircleGeometry( PARTICLE_RADIUS, 32 );
+    var material = new THREE.MeshBasicMaterial( {color: 0xc0c0c0, reflectivity:3} );
     var sphere = new THREE.Mesh( geometry, material );
 
     for(var i = 0; i < NUM_PARTICLES; i++){
@@ -227,30 +229,30 @@ function idle(){
 
 function checkBoundaries(i){
 
-    if(particles[i].mesh.position.x < PARTICLE_RADIUS/2 ){
+    if(particles[i].mesh.position.x < PARTICLE_RADIUS){
 
         particles[i].vel.x = -0.8*particles[i].vel.x;
-        particles[i].mesh.position.x = PARTICLE_RADIUS/2;
+        particles[i].mesh.position.x = PARTICLE_RADIUS;
     }
 
-    else if(particles[i].mesh.position.x > SQUARE_SIZE - PARTICLE_RADIUS/2){
+    else if(particles[i].mesh.position.x > SQUARE_SIZE - PARTICLE_RADIUS){
 
         particles[i].vel.x = -0.8*particles[i].vel.x;
-        particles[i].mesh.position.x = SQUARE_SIZE - PARTICLE_RADIUS/2;
+        particles[i].mesh.position.x = SQUARE_SIZE - PARTICLE_RADIUS;
     }
 
-    if(particles[i].mesh.position.y < PARTICLE_RADIUS/2 ){
+    if(particles[i].mesh.position.y < PARTICLE_RADIUS ){
 
         particles[i].vel.y = -0.8*particles[i].vel.y;
-        particles[i].mesh.position.y = PARTICLE_RADIUS/2;
+        particles[i].mesh.position.y = PARTICLE_RADIUS;
 
     }
 
 
-    else if(particles[i].mesh.position.y > SQUARE_SIZE - PARTICLE_RADIUS/2){
+    else if(particles[i].mesh.position.y > SQUARE_SIZE - PARTICLE_RADIUS){
 
         particles[i].vel.y = -0.8*particles[i].vel.y;
-        particles[i].mesh.position.y = SQUARE_SIZE - PARTICLE_RADIUS/2;
+        particles[i].mesh.position.y = SQUARE_SIZE - PARTICLE_RADIUS;
 
     }
 
@@ -278,17 +280,17 @@ function drawGrid(){
 
   // Draw line outside box
 
-  geometry.vertices.push(new THREE.Vector3(-LINEWIDTH/2, -LINEWIDTH/2, 0));
-  geometry.vertices.push(new THREE.Vector3(-LINEWIDTH/2, SQUARE_SIZE + LINEWIDTH, 0));
+  geometry.vertices.push(new THREE.Vector3(-LINEWIDTH/2 + 1, -LINEWIDTH/2, 0));
+  geometry.vertices.push(new THREE.Vector3(-LINEWIDTH/2 + 1, SQUARE_SIZE + LINEWIDTH - 1, 0));
 
-  geometry.vertices.push(new THREE.Vector3(-LINEWIDTH/2, SQUARE_SIZE + LINEWIDTH/2, 0));
-  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE + LINEWIDTH, SQUARE_SIZE + LINEWIDTH/2, 0));  
+  geometry.vertices.push(new THREE.Vector3(-LINEWIDTH/2 + 1, SQUARE_SIZE + LINEWIDTH/2 - 1, 0));
+  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE + LINEWIDTH - 1, SQUARE_SIZE + LINEWIDTH/2 - 1, 0));  
   
-  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE + LINEWIDTH/2, SQUARE_SIZE + LINEWIDTH/2, 0));  
-  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE + LINEWIDTH/2, -LINEWIDTH, 0));
+  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE + LINEWIDTH/2 - 1, SQUARE_SIZE + LINEWIDTH/2- 1, 0));  
+  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE + LINEWIDTH/2 - 1, -LINEWIDTH + 1, 0));
 
-  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE + LINEWIDTH/2, -LINEWIDTH/2, 0));
-  geometry.vertices.push(new THREE.Vector3(-LINEWIDTH, -LINEWIDTH/2, 0));
+  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE + LINEWIDTH/2 - 1, -LINEWIDTH/2 + 1, 0));
+  geometry.vertices.push(new THREE.Vector3(-LINEWIDTH + 1, -LINEWIDTH/2 + 1, 0));
 
   var line = new THREE.Line(geometry, material);
   scene.add(line);
