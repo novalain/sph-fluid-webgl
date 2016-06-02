@@ -5,6 +5,7 @@ const START_OFFSET_X = 100;
 const START_OFFSET_Y = 256;
 const OFFSET_Z = 700;
 const SQUARE_SIZE = 512;
+const PARTICLE_RADIUS = 8;
 
 // Physical attrs
 const NUM_PARTICLES = 400;
@@ -53,7 +54,7 @@ function initParticles(){
 
         particles.push({mesh: new THREE.Mesh(geometry, material),
                         vel: new THREE.Vector3(0, 0, 0),
-                        radius: 8,
+                        radius: PARTICLE_RADIUS,
                         pressure: 0,
                         density: 0,
                         viscousityForce: new THREE.Vector3(0, 0, 0),
@@ -225,30 +226,30 @@ function idle(){
 
 function checkBoundaries(i){
 
-    if(particles[i].mesh.position.x < 1){
+    if(particles[i].mesh.position.x < PARTICLE_RADIUS/2){
 
         particles[i].vel.x = -0.8*particles[i].vel.x;
-        particles[i].mesh.position.x = 1;
+        particles[i].mesh.position.x = PARTICLE_RADIUS/2;
     }
 
-    else if(particles[i].mesh.position.x > 511){
+    else if(particles[i].mesh.position.x > SQUARE_SIZE - PARTICLE_RADIUS/2){
 
         particles[i].vel.x = -0.8*particles[i].vel.x;
-        particles[i].mesh.position.x = 511;
+        particles[i].mesh.position.x = SQUARE_SIZE - PARTICLE_RADIUS/2;
     }
 
-    if(particles[i].mesh.position.y < 1){
+    if(particles[i].mesh.position.y < PARTICLE_RADIUS/2){
 
         particles[i].vel.y = -0.8*particles[i].vel.y;
-        particles[i].mesh.position.y = 1;
+        particles[i].mesh.position.y = PARTICLE_RADIUS/2;
 
     }
 
 
-    else if(particles[i].mesh.position.y > 511){
+    else if(particles[i].mesh.position.y > SQUARE_SIZE - PARTICLE_RADIUS/2){
 
         particles[i].vel.y = -0.8*particles[i].vel.y;
-        particles[i].mesh.position.y = 511;
+        particles[i].mesh.position.y = SQUARE_SIZE - PARTICLE_RADIUS/2;
 
     }
 
