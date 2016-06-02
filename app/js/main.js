@@ -6,6 +6,7 @@ const START_OFFSET_Y = 256;
 const OFFSET_Z = 700;
 const SQUARE_SIZE = 512;
 const PARTICLE_RADIUS = 8;
+const LINEWIDTH = 10;
 
 // Physical attrs
 const NUM_PARTICLES = 400;
@@ -30,8 +31,8 @@ function initThreeJS() {
 
     camera.position.set(SQUARE_SIZE/2,SQUARE_SIZE/2,OFFSET_Z);
 
-    initParticles();
     drawGrid();
+    initParticles();
 
     renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -226,7 +227,7 @@ function idle(){
 
 function checkBoundaries(i){
 
-    if(particles[i].mesh.position.x < PARTICLE_RADIUS/2){
+    if(particles[i].mesh.position.x < PARTICLE_RADIUS/2 ){
 
         particles[i].vel.x = -0.8*particles[i].vel.x;
         particles[i].mesh.position.x = PARTICLE_RADIUS/2;
@@ -238,7 +239,7 @@ function checkBoundaries(i){
         particles[i].mesh.position.x = SQUARE_SIZE - PARTICLE_RADIUS/2;
     }
 
-    if(particles[i].mesh.position.y < PARTICLE_RADIUS/2){
+    if(particles[i].mesh.position.y < PARTICLE_RADIUS/2 ){
 
         particles[i].vel.y = -0.8*particles[i].vel.y;
         particles[i].mesh.position.y = PARTICLE_RADIUS/2;
@@ -258,27 +259,40 @@ function checkBoundaries(i){
 
 function drawGrid(){
 
-  var geometry = new THREE.Geometry();
+  var rectShape = new THREE.Shape();
+  rectShape.moveTo( 0,0 );
+  rectShape.lineTo( 0, SQUARE_SIZE );
+  rectShape.lineTo( SQUARE_SIZE, SQUARE_SIZE );
+  rectShape.lineTo( SQUARE_SIZE, 0 );
+  rectShape.lineTo( 0, 0 );
 
+  var rectGeom = new THREE.ShapeGeometry(rectShape);
+  var rectMesh = new THREE.Mesh(rectGeom, new THREE.MeshBasicMaterial({color : 0xe0e0e0}))
+  //0x292929
+  
+  var geometry = new THREE.Geometry();
   var material = new THREE.LineBasicMaterial({
-        color: 0xffffff
+        color: 0xff9b9b,
+        linewidth: LINEWIDTH
   });
 
-  geometry.vertices.push(new THREE.Vector3(0, 0, 0));
-  geometry.vertices.push(new THREE.Vector3(0, SQUARE_SIZE, 0));
+  // Draw line outside box
 
-  geometry.vertices.push(new THREE.Vector3(0, SQUARE_SIZE, 0));
-  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE, SQUARE_SIZE, 0));
+  geometry.vertices.push(new THREE.Vector3(-LINEWIDTH/2, -LINEWIDTH/2, 0));
+  geometry.vertices.push(new THREE.Vector3(-LINEWIDTH/2, SQUARE_SIZE + LINEWIDTH, 0));
 
-  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE, SQUARE_SIZE, 0));
-  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE, 0, 0));
+  geometry.vertices.push(new THREE.Vector3(-LINEWIDTH/2, SQUARE_SIZE + LINEWIDTH/2, 0));
+  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE + LINEWIDTH, SQUARE_SIZE + LINEWIDTH/2, 0));  
+  
+  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE + LINEWIDTH/2, SQUARE_SIZE + LINEWIDTH/2, 0));  
+  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE + LINEWIDTH/2, -LINEWIDTH, 0));
 
-  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE, 0, 0));
-  geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE + LINEWIDTH/2, -LINEWIDTH/2, 0));
+  geometry.vertices.push(new THREE.Vector3(-LINEWIDTH, -LINEWIDTH/2, 0));
 
   var line = new THREE.Line(geometry, material);
-
   scene.add(line);
+  scene.add(rectMesh)
 
 }
 
