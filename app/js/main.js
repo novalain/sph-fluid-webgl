@@ -9,11 +9,12 @@ const PARTICLE_MASS = 500*.13;
 const h = 16;
 const STIFFNESS = 400*5;
 const GRAVITY_CONST = 90000*9.82;
+const dt = 0.0004;
 
 // UI
 const START_OFFSET_X = 100;
 const START_OFFSET_Y = 256;
-const OFFSET_Z = 700;
+const OFFSET_Z = 750;
 const SQUARE_SIZE = 512;
 const LINEWIDTH = 10;
 const PARTICLE_RADIUS = h/2;
@@ -38,7 +39,7 @@ function initThreeJS() {
 
     renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
-    renderer.setClearColor( 0x292929, 1);
+    renderer.setClearColor( 0xd0d0d0, 1);
 
     // Resizing window
     THREEx.WindowResize(renderer, camera);
@@ -50,7 +51,7 @@ function initThreeJS() {
 function initParticles(){
 
     var geometry = new THREE.CircleGeometry( PARTICLE_RADIUS, 32 );
-    var material = new THREE.MeshBasicMaterial( {color: 0xc0c0c0, reflectivity:3} );
+    var material = new THREE.MeshBasicMaterial( {map : new THREE.TextureLoader().load('../img/water.png')} );
     var sphere = new THREE.Mesh( geometry, material );
 
     for(var i = 0; i < NUM_PARTICLES; i++){
@@ -85,25 +86,19 @@ function initParticles(){
 
 function calculateDensityAndPressure(){
 
-    for(var i = 0; i < NUM_PARTICLES; i++){
+    for(let i = 0; i < NUM_PARTICLES; i++){
 
         var densitySum = 0;
 
-        for(var j = 0; j < NUM_PARTICLES; j++){
+        for(let j = 0; j < NUM_PARTICLES; j++){
 
             var diffVec = new THREE.Vector3(0,0,0);
             diffVec.subVectors(particles[i].mesh.position, particles[j].mesh.position);
-
-            var absDiffVec = diffVec.length();
-
-            //console.log("ABS DIFFVEC", absDiffVec);
+            let absDiffVec = diffVec.length();
 
             if(absDiffVec < h){
-
                 densitySum += PARTICLE_MASS * (315 / (64*Math.PI * Math.pow(h, 9.0))) * Math.pow((Math.pow(h, 2.0) - Math.pow(absDiffVec, 2)),3.0);
                 //cout << "Density: " << PARTICLE_MASS * (315 / (64 * M_PI * glm::pow(h, 9.0))) * glm::pow((glm::pow(h, 2.0) - glm::pow(abs_diffvec, 2.f)), 3.0) << endl;
-
-
             }
 
         }
@@ -112,7 +107,7 @@ function calculateDensityAndPressure(){
 
         particles[i].density = densitySum;
         particles[i].pressure = STIFFNESS*(densitySum - 998);
-        //particles[i].applyOtherForce(glm::vec3(0, 0, 0));
+        particles[i].otherForce =  new THREE.Vector3(0,0,0);
 
     }
 
@@ -121,11 +116,11 @@ function calculateDensityAndPressure(){
 
 function calculateForces(){
 
-    for(var i = 0; i < NUM_PARTICLES; i++){
+    for(let i = 0; i < NUM_PARTICLES; i++){
 
-        var gravity = new THREE.Vector3(0, -GRAVITY_CONST*particles[i].density, 0);
-        var pressure = new THREE.Vector3(0, 0, 0);
-        var viscousity = new THREE.Vector3(0, 0, 0);
+        let gravity = new THREE.Vector3(0, -GRAVITY_CONST*particles[i].density, 0);
+        let pressure = new THREE.Vector3(0, 0, 0);
+        let viscousity = new THREE.Vector3(0, 0, 0);
 
         for(var j = 0; j < NUM_PARTICLES; j++){
 
@@ -142,11 +137,9 @@ function calculateForces(){
 
             if(absDiffVec < h){
 
-                var W_const_pressure = 45/(Math.PI * Math.pow(h, 6.0)) * Math.pow(h - absDiffVec, 3.0) / absDiffVec;
-
-                var W_pressure_gradient = new THREE.Vector3(W_const_pressure * diffVec.x, W_const_pressure * diffVec.y, 0);
-
-                var visc_gradient = (45/(Math.PI * Math.pow(h, 6.0)))*(h - absDiffVec);
+                let W_const_pressure = 45/(Math.PI * Math.pow(h, 6.0)) * Math.pow(h - absDiffVec, 3.0) / absDiffVec;
+                let W_pressure_gradient = new THREE.Vector3(W_const_pressure * diffVec.x, W_const_pressure * diffVec.y, 0);
+                let visc_gradient = (45/(Math.PI * Math.pow(h, 6.0)))*(h - absDiffVec);
 
                 pressure.add(W_pressure_gradient.multiplyScalar(-PARTICLE_MASS * ((particles[i].pressure + particles[j].pressure) / (2 * particles[j].density))));
 
@@ -154,9 +147,6 @@ function calculateForces(){
                 tempVel.subVectors(particles[j].vel, particles[i].vel);
 
                 viscousity.add(tempVel.divideScalar(particles[j].density).multiplyScalar(VISCOUSITY * PARTICLE_MASS * visc_gradient));
-
-
-
 
             }
 
@@ -198,17 +188,15 @@ function animate() {
 
 function idle(){
 
-    var dt = 0.0004;
-
     var newPos = new THREE.Vector3(0, 0, 0);
     var newVel = new THREE.Vector3(0, 0, 0);
 
     for(var i = 0; i < NUM_PARTICLES; i++){
 
-
         newPos.addVectors(particles[i].gravityForce, particles[i].viscousityForce);
         newPos.add(particles[i].pressureForce);
-        newPos.multiplyScalar(dt*dt/(2*particles[i].density));
+        newPos.add(particles[i].otherForce)
+        newPos.multiplyScalar((dt*dt)/(2*particles[i].density));
         newPos.add(particles[i].vel.multiplyScalar(dt));
         newPos.add(particles[i].mesh.position);
 
@@ -229,30 +217,30 @@ function idle(){
 
 function checkBoundaries(i){
 
-    if(particles[i].mesh.position.x < PARTICLE_RADIUS){
+    if(particles[i].mesh.position.x < PARTICLE_RADIUS + 1){
 
         particles[i].vel.x = -0.8*particles[i].vel.x;
-        particles[i].mesh.position.x = PARTICLE_RADIUS;
+        particles[i].mesh.position.x = PARTICLE_RADIUS + 1;
     }
 
-    else if(particles[i].mesh.position.x > SQUARE_SIZE - PARTICLE_RADIUS){
+    else if(particles[i].mesh.position.x > SQUARE_SIZE - PARTICLE_RADIUS -  1){
 
         particles[i].vel.x = -0.8*particles[i].vel.x;
-        particles[i].mesh.position.x = SQUARE_SIZE - PARTICLE_RADIUS;
+        particles[i].mesh.position.x = SQUARE_SIZE - PARTICLE_RADIUS - 1;
     }
 
-    if(particles[i].mesh.position.y < PARTICLE_RADIUS ){
+    if(particles[i].mesh.position.y < PARTICLE_RADIUS + 1){
 
         particles[i].vel.y = -0.8*particles[i].vel.y;
-        particles[i].mesh.position.y = PARTICLE_RADIUS;
+        particles[i].mesh.position.y = PARTICLE_RADIUS + 1;
 
     }
 
 
-    else if(particles[i].mesh.position.y > SQUARE_SIZE - PARTICLE_RADIUS){
+    else if(particles[i].mesh.position.y > SQUARE_SIZE - PARTICLE_RADIUS - 1){
 
         particles[i].vel.y = -0.8*particles[i].vel.y;
-        particles[i].mesh.position.y = SQUARE_SIZE - PARTICLE_RADIUS;
+        particles[i].mesh.position.y = SQUARE_SIZE - PARTICLE_RADIUS - 1;
 
     }
 
@@ -269,7 +257,7 @@ function drawGrid(){
   rectShape.lineTo( 0, 0 );
 
   var rectGeom = new THREE.ShapeGeometry(rectShape);
-  var rectMesh = new THREE.Mesh(rectGeom, new THREE.MeshBasicMaterial({color : 0xe0e0e0}))
+  var rectMesh = new THREE.Mesh(rectGeom, new THREE.MeshBasicMaterial({color : 0xffffff}))
   //0x292929
   
   var geometry = new THREE.Geometry();
@@ -293,7 +281,7 @@ function drawGrid(){
   geometry.vertices.push(new THREE.Vector3(-LINEWIDTH + 1, -LINEWIDTH/2 + 1, 0));
 
   var line = new THREE.Line(geometry, material);
-  scene.add(line);
+  //scene.add(line);
   scene.add(rectMesh)
 
 }

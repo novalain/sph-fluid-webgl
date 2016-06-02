@@ -18,8 +18,9 @@ body {
 .header{
     margin-top:50px;
     color:white;
-    font-size:1.9em;
-    font-family:'Open Sans Condensed', sans-serif;
+    font-size:1.3em;
+    font-family:sans-serif;
+    font-weight:100;
 }
 
 .footer{
@@ -35,22 +36,12 @@ body {
 }
 
 .outerContainer{
-
     position: absolute;
-    
     left: 50%;
-    
     top:-25px;
     text-align:center;
-    font-size:1.5vh;
-
-    
-    
 }
-
-
 
 #work{
     color:red;
-
 }
