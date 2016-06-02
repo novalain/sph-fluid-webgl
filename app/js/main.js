@@ -1,13 +1,18 @@
 (function() {
 
-// Constants
-var NUM_PARTICLES = 300;
+// UI
+const START_OFFSET_X = 100;
+const START_OFFSET_Y = 256;
+const OFFSET_Z = 700;
+const SQUARE_SIZE = 512;
 
-var VISCOUSITY = 400*5;
-var PARTICLE_MASS = 500*.13;
-var h = 16;
-var STIFFNESS = 400*5;
-var GRAVITY_CONST = 80000*9.82;
+// Physical attrs
+const NUM_PARTICLES = 400;
+const VISCOUSITY = 400*5;
+const PARTICLE_MASS = 500*.13;
+const h = 16;
+const STIFFNESS = 400*5;
+const GRAVITY_CONST = 90000*9.82;
 
 var scene, camera, renderer;
 var particles = [];
@@ -22,7 +27,7 @@ function initThreeJS() {
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
     camera.position.z = 1000;
 
-    camera.position.set(256,256,600);
+    camera.position.set(SQUARE_SIZE/2,SQUARE_SIZE/2,OFFSET_Z);
 
     initParticles();
     drawGrid();
@@ -64,21 +69,12 @@ function initParticles(){
     var k = 0, j = 0;
 
     for(var i = 0; i < NUM_PARTICLES; i++){
-
-        //Y-led
-        if(i % 40 === 0){
-            k++;
-        }
-
-        //X
-        if(i % 40 === 0){
-            j=0;
-        }
-
+        // y
+        if(i % 40 === 0){ k++; }
+        // x
+        if(i % 40 === 0){ j=0; }
         j++;
-
-        particles[i].mesh.position.set(20+j*h/2 - 8, 19*16 + k*h/2 - 8, 0);
-
+        particles[i].mesh.position.set(START_OFFSET_X + j*h/2, START_OFFSET_Y + k*h/2, 0);
     }
 
 }
@@ -189,7 +185,7 @@ function animate() {
 
     calculateAcceleration();
     //handleInputs();
-  //  display();
+    //display();
     idle();
 
     renderer.render( scene, camera );
@@ -197,7 +193,6 @@ function animate() {
 }
 
 function idle(){
-
 
     var dt = 0.0004;
 
@@ -269,15 +264,15 @@ function drawGrid(){
   });
 
   geometry.vertices.push(new THREE.Vector3(0, 0, 0));
-  geometry.vertices.push(new THREE.Vector3(0, 512, 0));
+  geometry.vertices.push(new THREE.Vector3(0, SQUARE_SIZE, 0));
 
-  geometry.vertices.push(new THREE.Vector3(0, 512, 0));
-  geometry.vertices.push(new THREE.Vector3(512, 512, 0));
+  geometry.vertices.push(new THREE.Vector3(0, SQUARE_SIZE, 0));
+  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE, SQUARE_SIZE, 0));
 
-  geometry.vertices.push(new THREE.Vector3(512, 512, 0));
-  geometry.vertices.push(new THREE.Vector3(512, 0, 0));
+  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE, SQUARE_SIZE, 0));
+  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE, 0, 0));
 
-  geometry.vertices.push(new THREE.Vector3(512, 0, 0));
+  geometry.vertices.push(new THREE.Vector3(SQUARE_SIZE, 0, 0));
   geometry.vertices.push(new THREE.Vector3(0, 0, 0));
 
   var line = new THREE.Line(geometry, material);
