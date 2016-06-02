@@ -1,10 +1,8 @@
 (function() {
 
-
-
 // Physical attrs
 const NUM_PARTICLES = 400;
-const VISCOUSITY = 400*5;
+const VISCOUSITY = 1000*5;
 const PARTICLE_MASS = 500*.13;
 const h = 16;
 const STIFFNESS = 400*5;
@@ -21,9 +19,46 @@ const PARTICLE_RADIUS = h/2;
 
 var scene, camera, renderer;
 var particles = [];
+var fireParticles = false;
 
 initThreeJS();
 animate();
+
+
+$(document).on('mousedown mouseup', (e) => {
+    if (e.type == "mousedown") {
+        fireParticles = true;
+    } else if (e.type == "mouseup"){
+        fireParticles = false;
+    }
+});
+
+
+/*
+document.addEventListener("click", () => {
+
+  
+  // Get mouse pos
+  var vector = new THREE.Vector3();
+  vector.set((event.clientX / window.innerWidth) * 2 - 1,
+            -(event.clientY / window.innerHeight) * 2 + 1, 0.5);
+
+  vector.unproject( camera );
+  var dir = vector.sub(camera.position).normalize();
+  var distance = -camera.position.z / dir.z;
+  var pos = camera.position.clone().add(dir.multiplyScalar(distance));
+
+  // Iterate and decide which particles to effect, need to make this more effecient too
+  for(let i = 0; i < NUM_PARTICLES; i++){
+    particles[i].otherForce = new THREE.Vector3(0, 30000, 0);
+    
+    setTimeout(() => {
+      particles[i].otherForce =  new THREE.Vector3(0,0,0);
+    }, 500)
+
+  }
+
+})*/
 
 function initThreeJS() {
 
@@ -39,7 +74,7 @@ function initThreeJS() {
 
     renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
-    renderer.setClearColor( 0xd0d0d0, 1);
+    renderer.setClearColor( 0xe0e0e0, 1);
 
     // Resizing window
     THREEx.WindowResize(renderer, camera);
@@ -107,7 +142,15 @@ function calculateDensityAndPressure(){
 
         particles[i].density = densitySum;
         particles[i].pressure = STIFFNESS*(densitySum - 998);
-        particles[i].otherForce =  new THREE.Vector3(0,0,0);
+        //particles[i].otherForce =  new THREE.Vector3(0,0,0);
+
+        //console.log("fire", fireParticles);
+        if(fireParticles){
+          particles[i].otherForce = new THREE.Vector3(0, 50000, 0);
+        } else {
+          particles[i].otherForce = new THREE.Vector3(0, 0, 0);
+        }
+
 
     }
 
