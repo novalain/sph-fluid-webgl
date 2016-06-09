@@ -211,9 +211,7 @@ var SPHFluid = function() {
   }
 
   // Brute force style
-
   function calculateAcceleration(){
-
 
       calculateDensityAndPressure();
       calculateForces();
@@ -224,14 +222,11 @@ var SPHFluid = function() {
   function animate() {
 
       requestAnimationFrame( animate );
-
       calculateAcceleration();
       //handleInputs();
       //display();
       idle();
-
       renderer.render( scene, camera );
-
   }
 
   function idle(){
@@ -248,16 +243,12 @@ var SPHFluid = function() {
           newPos.add(particles[i].vel.multiplyScalar(self.dt));
           newPos.add(particles[i].mesh.position);
 
-        //  if(i == 10)
-          //  console.log('pos', newPos);
-
           newVel.subVectors(newPos, particles[i].mesh.position);
           newVel.multiplyScalar(1/self.dt);
 
           particles[i].mesh.position.set(newPos.x, newPos.y, newPos.z);
           particles[i].vel.set(newVel.x, newVel.y, newVel.z);
 
-          //Boundaries
           checkBoundaries(i);
       }
 
