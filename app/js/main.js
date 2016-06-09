@@ -30,9 +30,9 @@ var SPHFluid = function() {
         scene.remove(scene.children[i]);
       }
 
-      var geometry = new THREE.CircleGeometry( PARTICLE_RADIUS, 32 );
-      var material = new THREE.MeshBasicMaterial( {map : new THREE.TextureLoader().load('../img/water.png')} );
-      var sphere = new THREE.Mesh( geometry, material );
+      var geometry = new THREE.CircleGeometry( PARTICLE_RADIUS, 16 );
+      //var material = new THREE.MeshBasicMaterial( {map : new THREE.TextureLoader().load('../img/circle.png')} );
+      var material = new THREE.MeshBasicMaterial( {color: 0x2FA1D6} );
 
       for(var i = 0; i < self.NUM_PARTICLES; i++){
 
