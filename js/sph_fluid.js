@@ -67,28 +67,28 @@ class SPHFluid {
   }
 
   calculateDensityAndPressure() {
-    for (let particle of this.particles_) {
+    for (let i = 0; i < this.particles_.length; i++) {
       let densitySum = 0;
 
       for (let neighborParticle of this.particles_) {
         let diffVec = new THREE.Vector3(0, 0, 0);
-        diffVec.subVectors(particle.position, neighborParticle.position);
+        diffVec.subVectors(this.particles_[i].position, neighborParticle.position);
         const absDiffVec = diffVec.length();
 
         if (absDiffVec < this.h) {
-          densitySum += this.particleMass *
+          densitySum += this.this.particles_[i]Mass *
               (315 / (64 * Math.PI * Math.pow(this.h, 9.0))) *
               Math.pow((Math.pow(this.h, 2.0) - Math.pow(absDiffVec, 2)), 3.0);
         }
       }
 
-      particle.density = densitySum;
-      particle.pressure = this.stiffness * (densitySum - 998);
+      this.particles_[i].density = densitySum;
+      this.particles_[i].pressure = this.stiffness * (densitySum - 998);
 
       if (this.fireParticles_) {
-        particle.otherForce = new THREE.Vector3(0, 50000, 0);
+        this.particles_[i].otherForce = new THREE.Vector3(0, 50000, 0);
       } else {
-        particle.otherForce = new THREE.Vector3(0, 0, 0);
+        this.particles_[i].otherForce = new THREE.Vector3(0, 0, 0);
       }
     }
   }
@@ -153,21 +153,21 @@ class SPHFluid {
     let newVel = new THREE.Vector3(0, 0, 0);
     let newPositions = [];
 
-    for (const particle of this.particles_) {
-      newPos.addVectors(particle.gravityForce, particle.viscousityForce);
-      newPos.add(particle.pressureForce);
-      newPos.add(particle.otherForce)
-          newPos.multiplyScalar((this.dt * this.dt) / (2 * particle.density));
-      newPos.add(particle.vel.multiplyScalar(this.dt));
-      newPos.add(particle.position);
+    for (let i = 0; i < this.particles_[i].length; i++) {
+      newPos.addVectors(this.particles_[i].gravityForce, this.particles_[i].viscousityForce);
+      newPos.add(this.particles_[i].pressureForce);
+      newPos.add(this.particles_[i].otherForce)
+          newPos.multiplyScalar((this.dt * this.dt) / (2 * this.particles_[i].density));
+      newPos.add(this.particles_[i].vel.multiplyScalar(this.dt));
+      newPos.add(this.particles_[i].position);
 
-      newVel.subVectors(newPos, particle.position);
+      newVel.subVectors(newPos, this.particles_[i].position);
       newVel.multiplyScalar(1 / this.dt);
 
-      particle.position.set(newPos.x, newPos.y, newPos.z);
-      particle.vel.set(newVel.x, newVel.y, newVel.z);
-      newPositions.push(particle.position);
-      this.checkBoundaries(particle);
+      this.particles_[i].position.set(newPos.x, newPos.y, newPos.z);
+      this.particles_[i].vel.set(newVel.x, newVel.y, newVel.z);
+      newPositions.push(this.particles_[i].position);
+      this.checkBoundaries(this.particles_[i]);
     }
     this.particlePositions_ = newPositions;
   }
