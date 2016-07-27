@@ -70,13 +70,13 @@ class SPHFluid {
     for (let i = 0; i < this.particles_.length; i++) {
       let densitySum = 0;
 
-      for (let neighborParticle of this.particles_) {
+      for (let j = 0 ; j < this.particles_.length; j++) {
         let diffVec = new THREE.Vector3(0, 0, 0);
-        diffVec.subVectors(this.particles_[i].position, neighborParticle.position);
+        diffVec.subVectors(this.particles_[i].position, this.particles_[j].position);
         const absDiffVec = diffVec.length();
 
         if (absDiffVec < this.h) {
-          densitySum += this.this.particles_[i]Mass *
+          densitySum += this.particleMass *
               (315 / (64 * Math.PI * Math.pow(this.h, 9.0))) *
               Math.pow((Math.pow(this.h, 2.0) - Math.pow(absDiffVec, 2)), 3.0);
         }
@@ -153,7 +153,7 @@ class SPHFluid {
     let newVel = new THREE.Vector3(0, 0, 0);
     let newPositions = [];
 
-    for (let i = 0; i < this.particles_[i].length; i++) {
+    for (let i = 0; i < this.particles_.length; i++) {
       newPos.addVectors(this.particles_[i].gravityForce, this.particles_[i].viscousityForce);
       newPos.add(this.particles_[i].pressureForce);
       newPos.add(this.particles_[i].otherForce)
